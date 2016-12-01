@@ -59,7 +59,13 @@ func parseModuleName(moduleName string) (string, string, error) {
 }
 
 func parseReleasePathParam(r *http.Request) (string, string, string, error) {
-	userModuleVersion := mux.Vars(r)["user-module-version"]
+	var userModuleVersion string
+	//In case it's in the form of user/module-version, which is apparently tolerated by the forge api
+	if mux.Vars(r)["user"] != "" && mux.Vars(r)["module-version"] != "" {
+		userModuleVersion = mux.Vars(r)["user"] + "-" + mux.Vars(r)["module-version"]
+	} else {
+		userModuleVersion = mux.Vars(r)["user-module-version"]
+	}
 	if strings.Count(userModuleVersion, "-") != 2 {
 		return "", "", "", fmt.Errorf("user-module-version '%s' should be of the form '{user}-{module}-{version}", userModuleVersion)
 	}
